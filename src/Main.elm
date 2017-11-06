@@ -20,6 +20,7 @@ type alias Model =
     { transactions : List Transaction
     , accounts : List String
     , draftAccount : String
+    , message : Maybe String
     }
 
 
@@ -28,6 +29,7 @@ init =
     ( { transactions = []
       , accounts = []
       , draftAccount = ""
+      , message = Nothing
       }
     , Cmd.none
     )
@@ -56,12 +58,23 @@ update msg model =
                 transactions =
                     parseCSV text
 
+                message =
+                    if List.isEmpty transactions then
+                        Just "Sorry, I wasn't able to read any transactions from the uploaded file."
+                    else
+                        Nothing
+
                 updated =
                     List.map
                         (Transaction.setPayFrom (List.head model.accounts))
                         transactions
             in
-                ( { model | transactions = updated }, Cmd.none )
+                ( { model
+                    | transactions = updated
+                    , message = message
+                  }
+                , Cmd.none
+                )
 
         SelectAccount index account ->
             let
@@ -129,6 +142,7 @@ view model =
         [ newAccountInput model.draftAccount
         , aggregateTable model
         , transactionTable model
+        , error model.message
         ]
 
 
@@ -275,6 +289,22 @@ accountOption account =
     Html.option
         [ Attributes.value account ]
         [ Html.text account ]
+
+
+error : Maybe String -> Html Msg
+error maybeMessage =
+    case maybeMessage of
+        Nothing ->
+            Html.text ""
+
+        Just msg ->
+            Html.div
+                [ Attributes.class "error-container" ]
+                [ Html.div []
+                    [ Html.text "¯\\_(ツ)_/¯" ]
+                , Html.div []
+                    [ Html.text msg ]
+                ]
 
 
 -- SUBSCRIPTIONS
