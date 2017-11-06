@@ -20,6 +20,7 @@ fromDict dict =
             dict
                 |> Dict.get "Amount"
                 |> Maybe.andThen (Result.toMaybe << String.toFloat)
+                |> Maybe.map abs
     in
         Maybe.map5
             (Transaction Nothing)

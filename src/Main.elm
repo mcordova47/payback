@@ -6,6 +6,8 @@ import Html.Events as Events
 import Json.Decode as Decode
 import Dict
 import Regex
+import FormatNumber as Number
+import FormatNumber.Locales as Number
 import Ports
 import Transaction exposing (Transaction)
 import List.Extra as List
@@ -141,11 +143,9 @@ view model =
                     [ Html.text "Upload Transactions" ]
                 ]
             ]
-        , Html.div []
-            [ Html.text (formatTotal "" model.transactions) ]
         ]
-        ++ List.map (accountTotal model.transactions) model.accounts
         ++ [ transactionTable model ]
+        ++ [ aggregateTable model ]
 
 
 fileUploadId : String
@@ -167,26 +167,48 @@ newAccountInput value =
         ]
 
 
-accountTotal : List Transaction -> String -> Html Msg
-accountTotal transactions account =
-    Html.div []
-        [ Html.text (formatSubTotal transactions account) ]
+aggregateTable : Model -> Html Msg
+aggregateTable { transactions, accounts } =
+    Html.div
+        [ Attributes.class "aggregate-table" ]
+        [ Html.table []
+            [ Html.thead []
+                [ Html.tr [] <|
+                    (tableHeader "Total")
+                    :: (List.map tableHeader accounts)
+                ]
+            , Html.tbody []
+                [ Html.tr [] <|
+                    (tableCell (formatTotal transactions))
+                    :: (List.map (tableCell << formatSubTotal transactions) accounts)
+                ]
+            ]
+        ]
+
+
+tableCell : String -> Html Msg
+tableCell text =
+    Html.td [] [ Html.text text ]
+
+
+tableHeader : String -> Html Msg
+tableHeader text =
+    Html.th [] [ Html.text text ]
 
 
 formatSubTotal : List Transaction -> String -> String
 formatSubTotal transactions account =
     transactions
         |> List.filter ((==) (Just account) << .payFrom)
-        |> formatTotal (account ++ " ")
+        |> formatTotal
 
 
-formatTotal : String -> List Transaction -> String
-formatTotal prefix transactions =
+formatTotal : List Transaction -> String
+formatTotal transactions =
     transactions
         |> List.map .amount
         |> List.sum
-        |> toString
-        |> (++) (prefix ++ "Total: ")
+        |> Number.format Number.usLocale
 
 
 transactionTable : Model -> Html Msg
