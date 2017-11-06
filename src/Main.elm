@@ -125,31 +125,36 @@ zip =
 view : Model -> Html Msg
 view model =
     Html.div
-        [ Attributes.class "payback" ] <|
+        [ Attributes.class "payback" ]
         [ newAccountInput model.draftAccount
-        , Html.div
-            [ Attributes.class "file-upload-container" ]
-            [ Html.input
-                [ Attributes.type_ "file"
-                , Attributes.id fileUploadId
-                , Events.on "change" (Decode.succeed UploadFile)
-                ] []
-            , Html.label
-                [ Attributes.for fileUploadId ]
-                [ Html.i
-                    [ Attributes.class "material-icons" ]
-                    [ Html.text "file_upload" ]
-                , Html.span []
-                    [ Html.text "Upload Transactions" ]
-                ]
-            ]
+        , aggregateTable model
+        , transactionTable model
         ]
-        ++ [ transactionTable model ]
-        ++ [ aggregateTable model ]
 
 
 fileUploadId : String
 fileUploadId = "file-upload"
+
+
+fileUploader : Html Msg
+fileUploader =
+    Html.div
+        [ Attributes.class "file-upload-container" ]
+        [ Html.input
+            [ Attributes.type_ "file"
+            , Attributes.id fileUploadId
+            , Events.on "change" (Decode.succeed UploadFile)
+            ]
+            []
+        , Html.label
+            [ Attributes.for fileUploadId ]
+            [ Html.i
+                [ Attributes.class "material-icons" ]
+                [ Html.text "file_upload" ]
+            , Html.span []
+                [ Html.text "Upload Transactions" ]
+            ]
+        ]
 
 
 newAccountInput : String -> Html Msg
@@ -169,21 +174,26 @@ newAccountInput value =
 
 aggregateTable : Model -> Html Msg
 aggregateTable { transactions, accounts } =
-    Html.div
-        [ Attributes.class "aggregate-table" ]
-        [ Html.table []
-            [ Html.thead []
-                [ Html.tr [] <|
-                    (tableHeader "Total")
-                    :: (List.map tableHeader accounts)
+    case accounts of
+        [] ->
+            Html.text "Add some accounts to begin."
+
+        _ ->
+            Html.div
+                [ Attributes.class "aggregate-table" ]
+                [ Html.table []
+                    [ Html.thead []
+                        [ Html.tr [] <|
+                            (tableHeader "Total")
+                            :: (List.map tableHeader accounts)
+                        ]
+                    , Html.tbody []
+                        [ Html.tr [] <|
+                            (tableCell (formatTotal transactions))
+                            :: (List.map (tableCell << formatSubTotal transactions) accounts)
+                        ]
+                    ]
                 ]
-            , Html.tbody []
-                [ Html.tr [] <|
-                    (tableCell (formatTotal transactions))
-                    :: (List.map (tableCell << formatSubTotal transactions) accounts)
-                ]
-            ]
-        ]
 
 
 tableCell : String -> Html Msg
@@ -213,22 +223,30 @@ formatTotal transactions =
 
 transactionTable : Model -> Html Msg
 transactionTable { transactions, accounts } =
-    Html.div
-        [ Attributes.class "transactions" ]
-        [ Html.table []
-            [ Html.thead []
-                [ Html.tr []
-                    [ Html.th [] [ Html.text "Description" ]
-                    , Html.th [] [ Html.text "Amount" ]
-                    , Html.th [] [ Html.text "Transaction Date" ]
-                    , Html.th [] [ Html.text "Post Date" ]
-                    , Html.th [] [ Html.text "Type" ]
-                    , Html.th [] [ Html.text "Pay From" ]
+    case ( accounts, transactions ) of
+        ( [], _ ) ->
+            Html.text ""
+
+        ( _, [] ) ->
+            fileUploader
+
+        _ ->
+            Html.div
+                [ Attributes.class "transactions" ]
+                [ Html.table []
+                    [ Html.thead []
+                        [ Html.tr []
+                            [ Html.th [] [ Html.text "Description" ]
+                            , Html.th [] [ Html.text "Amount" ]
+                            , Html.th [] [ Html.text "Transaction Date" ]
+                            , Html.th [] [ Html.text "Post Date" ]
+                            , Html.th [] [ Html.text "Type" ]
+                            , Html.th [] [ Html.text "Pay From" ]
+                            ]
+                        ]
+                    , Html.tbody [] (List.indexedMap (transactionRow accounts) transactions)
                     ]
                 ]
-            , Html.tbody [] (List.indexedMap (transactionRow accounts) transactions)
-            ]
-        ]
 
 
 transactionRow : List String -> Int -> Transaction -> Html Msg

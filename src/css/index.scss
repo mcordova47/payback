@@ -2,17 +2,29 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
+$gray: #adadad;
+$primary: #8a8aff;
+
 .payback {
   font-family: Roboto, sans-serif;
   color: #323232;
+  table {
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
   th {
     text-align: left;
     font-weight: normal;
-    color: #b5b5b5;
+    color: $gray;
     font-size: 14px;
+    padding: 0 10px;
   }
-  th, td {
-    padding: 5px;
+  td {
+    border-bottom: 1px solid $gray;
+    padding: 10px;
+  }
+  tr:last-child td {
+    border-bottom: none;
   }
 }
 
@@ -26,21 +38,26 @@
 
 label[for="file-upload"] {
   cursor: pointer;
-  font-weight: bold;
   span, i {
     float: left;
   }
   i {
     color: #a0a0a0;
   }
+  span {
+    padding: 2px 5px;
+  }
 }
 
 .new-account {
   input {
-    border-width: 0 0 2px 0;
+    border-width: 0 0 3px 0;
     outline: none;
     padding: 5px;
     font-size: 16px;
     margin-bottom: 10px;
+    &:focus {
+      border-color: $primary;
+    }
   }
 }
