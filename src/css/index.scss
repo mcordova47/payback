@@ -34,6 +34,7 @@ $primary: #8a8aff;
 
 .file-upload-container {
   display: inline-block;
+  margin-bottom: -7px;
 }
 
 label[for="file-upload"] {
@@ -65,4 +66,15 @@ label[for="file-upload"] {
 .error-container {
   text-align: center;
   width: 500px;
+  margin-top: -30px;
+  margin-bottom: 10px;
+}
+
+.file-drop {
+  height: 250px;
+  width: 500px;
+  border: 2px dashed $gray;
+  border-radius: 5px;
+  text-align: center;
+  padding-top: 235px;
 }

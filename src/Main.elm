@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder, Value)
 import Dict
 import Regex
 import FormatNumber as Number
@@ -21,6 +21,7 @@ type alias Model =
     , accounts : List String
     , draftAccount : String
     , message : Maybe String
+    , file : Maybe Decode.Value
     }
 
 
@@ -30,6 +31,7 @@ init =
       , accounts = []
       , draftAccount = ""
       , message = Nothing
+      , file = Nothing
       }
     , Cmd.none
     )
@@ -40,7 +42,8 @@ init =
 
 
 type Msg
-    = UploadFile
+    = NoOp
+    | UploadFile Value
     | ReadFile String
     | SelectAccount Int String
     | SetDraftAccount String
@@ -50,8 +53,8 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UploadFile ->
-            ( model, Ports.upload fileUploadId )
+        UploadFile file ->
+            ( model, Ports.upload file )
 
         ReadFile text ->
             let
@@ -94,6 +97,9 @@ update msg model =
             , Cmd.none
             )
 
+        NoOp ->
+            ( model, Cmd.none )
+
 
 updateList : Int -> (a -> a) -> List a -> List a
 updateList index update list =
@@ -132,6 +138,16 @@ zip =
     List.map2 (,)
 
 
+fileInputEventDecoder : Decoder Value
+fileInputEventDecoder =
+    Decode.at [ "target", "files", "0" ] Decode.value
+
+
+dropEventDecoder : Decoder Value
+dropEventDecoder =
+    Decode.at [ "dataTransfer", "files", "0" ] Decode.value
+
+
 -- VIEW
 
 
@@ -142,7 +158,6 @@ view model =
         [ newAccountInput model.draftAccount
         , aggregateTable model
         , transactionTable model
-        , error model.message
         ]
 
 
@@ -157,7 +172,7 @@ fileUploader =
         [ Html.input
             [ Attributes.type_ "file"
             , Attributes.id fileUploadId
-            , Events.on "change" (Decode.succeed UploadFile)
+            , Events.on "change" (Decode.map UploadFile fileInputEventDecoder)
             ]
             []
         , Html.label
@@ -166,7 +181,28 @@ fileUploader =
                 [ Attributes.class "material-icons" ]
                 [ Html.text "file_upload" ]
             , Html.span []
-                [ Html.text "Upload Transactions" ]
+                [ Html.text "Upload" ]
+            ]
+        ]
+
+
+fileDrop : Maybe String -> Html Msg
+fileDrop message =
+    Html.div
+        [ Events.onWithOptions
+            "drop"
+            { stopPropagation = False, preventDefault = True }
+            (Decode.map UploadFile dropEventDecoder)
+        , Events.onWithOptions
+            "dragover"
+            { stopPropagation = False, preventDefault = True }
+            (Decode.succeed NoOp)
+        , Attributes.class "file-drop"
+        ]
+        [ error message
+        , Html.div []
+            [ fileUploader
+            , Html.span [] [ Html.text " or drop file." ]
             ]
         ]
 
@@ -236,13 +272,13 @@ formatTotal transactions =
 
 
 transactionTable : Model -> Html Msg
-transactionTable { transactions, accounts } =
+transactionTable { transactions, accounts, message } =
     case ( accounts, transactions ) of
         ( [], _ ) ->
             Html.text ""
 
         ( _, [] ) ->
-            fileUploader
+            fileDrop message
 
         _ ->
             Html.div
