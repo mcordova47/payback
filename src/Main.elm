@@ -11,6 +11,7 @@ import FormatNumber.Locales as Number
 import Ports
 import Transaction exposing (Transaction)
 import List.Extra as List
+import Dropdown
 
 
 -- MODEL
@@ -21,7 +22,6 @@ type alias Model =
     , accounts : List String
     , draftAccount : String
     , message : Maybe String
-    , file : Maybe Decode.Value
     }
 
 
@@ -31,7 +31,6 @@ init =
       , accounts = []
       , draftAccount = ""
       , message = Nothing
-      , file = Nothing
       }
     , Cmd.none
     )
@@ -48,6 +47,7 @@ type Msg
     | SelectAccount Int String
     | SetDraftAccount String
     | AddAccount
+    | DropdownMsg Dropdown.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -98,6 +98,9 @@ update msg model =
             )
 
         NoOp ->
+            ( model, Cmd.none )
+
+        DropdownMsg _ ->
             ( model, Cmd.none )
 
 
@@ -313,11 +316,17 @@ transactionRow accounts index transaction =
 
 accountPicker : List String -> Int -> Maybe String -> Html Msg
 accountPicker accounts index selected =
-    Html.select
+    let
+        config =
+            Dropdown.Config accounts selected index "Select Account"
+    in
+        Html.map DropdownMsg (Dropdown.view config Dropdown.init)
+
+{-     Html.select
         [ Attributes.value (Maybe.withDefault "" selected)
         , Events.on "change" (Decode.map (SelectAccount index) Events.targetValue)
         ]
-        (List.map accountOption accounts)
+        (List.map accountOption accounts) -}
 
 
 accountOption : String -> Html Msg
