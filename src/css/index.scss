@@ -3,6 +3,7 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 $gray: #adadad;
+$gray-highlight: #f7f7f7;
 $primary: #8a8aff;
 
 .payback {
@@ -77,4 +78,7 @@ label[for="file-upload"] {
   border-radius: 5px;
   text-align: center;
   padding-top: 235px;
+  &--dragging {
+    background-color: $gray-highlight;
+  }
 }

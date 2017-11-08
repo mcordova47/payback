@@ -21,7 +21,7 @@ type alias Model =
     , accounts : List String
     , draftAccount : String
     , message : Maybe String
-    , file : Maybe Decode.Value
+    , dragging : Bool
     }
 
 
@@ -31,7 +31,7 @@ init =
       , accounts = []
       , draftAccount = ""
       , message = Nothing
-      , file = Nothing
+      , dragging = False
       }
     , Cmd.none
     )
@@ -42,19 +42,20 @@ init =
 
 
 type Msg
-    = NoOp
-    | UploadFile Value
+    = UploadFile Value
     | ReadFile String
     | SelectAccount Int String
     | SetDraftAccount String
     | AddAccount
+    | DragOver
+    | DragLeave
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UploadFile file ->
-            ( model, Ports.upload file )
+            ( { model | dragging = False }, Ports.upload file )
 
         ReadFile text ->
             let
@@ -97,8 +98,11 @@ update msg model =
             , Cmd.none
             )
 
-        NoOp ->
-            ( model, Cmd.none )
+        DragOver ->
+            ( { model | dragging = True }, Cmd.none )
+
+        DragLeave ->
+            ( { model | dragging = False }, Cmd.none )
 
 
 updateList : Int -> (a -> a) -> List a -> List a
@@ -186,8 +190,8 @@ fileUploader =
         ]
 
 
-fileDrop : Maybe String -> Html Msg
-fileDrop message =
+fileDrop : Maybe String -> Bool -> Html Msg
+fileDrop message dragging =
     Html.div
         [ Events.onWithOptions
             "drop"
@@ -196,8 +200,15 @@ fileDrop message =
         , Events.onWithOptions
             "dragover"
             { stopPropagation = False, preventDefault = True }
-            (Decode.succeed NoOp)
-        , Attributes.class "file-drop"
+            (Decode.succeed DragOver)
+        , Events.onWithOptions
+            "dragleave"
+            { stopPropagation = False, preventDefault = True }
+            (Decode.succeed DragLeave)
+        , Attributes.classList
+            [ ( "file-drop", True )
+            , ( "file-drop--dragging", dragging )
+            ]
         ]
         [ error message
         , Html.div []
@@ -272,13 +283,13 @@ formatTotal transactions =
 
 
 transactionTable : Model -> Html Msg
-transactionTable { transactions, accounts, message } =
+transactionTable { transactions, accounts, message, dragging } =
     case ( accounts, transactions ) of
         ( [], _ ) ->
             Html.text ""
 
         ( _, [] ) ->
-            fileDrop message
+            fileDrop message dragging
 
         _ ->
             Html.div
