@@ -4,14 +4,13 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder, Value)
-import Dict
+import Dict exposing (Dict)
 import Regex
 import FormatNumber as Number
 import FormatNumber.Locales as Number
 import Ports
 import Transaction exposing (Transaction)
 import List.Extra as List
-import Dropdown
 
 
 -- MODEL
@@ -23,6 +22,7 @@ type alias Model =
     , draftAccount : String
     , message : Maybe String
     , dragging : Bool
+    , openedDropdown : Maybe Int
     }
 
 
@@ -33,6 +33,7 @@ init =
       , draftAccount = ""
       , message = Nothing
       , dragging = False
+      , openedDropdown = Nothing
       }
     , Cmd.none
     )
@@ -48,7 +49,7 @@ type Msg
     | SelectAccount Int String
     | SetDraftAccount String
     | AddAccount
-    | DropdownMsg Dropdown.Msg
+    | OpenDropdown Int
     | DragOver
     | DragLeave
 
@@ -70,13 +71,13 @@ update msg model =
                     else
                         Nothing
 
-                updated =
+                updatedTransactions =
                     List.map
                         (Transaction.setPayFrom (List.head model.accounts))
                         transactions
             in
                 ( { model
-                    | transactions = updated
+                    | transactions = updatedTransactions
                     , message = message
                   }
                 , Cmd.none
@@ -87,7 +88,12 @@ update msg model =
                 transactions =
                     updateList index (\t -> { t | payFrom = Just account }) model.transactions
             in
-                ( { model | transactions = transactions }, Cmd.none )
+                ( { model
+                    | transactions = transactions
+                    , openedDropdown = Nothing
+                  }
+                , Cmd.none
+                )
 
         SetDraftAccount name ->
             ( { model | draftAccount = name }, Cmd.none )
@@ -106,8 +112,8 @@ update msg model =
         DragLeave ->
             ( { model | dragging = False }, Cmd.none )
 
-        DropdownMsg _ ->
-            ( model, Cmd.none )
+        OpenDropdown index ->
+            ( { model | openedDropdown = Just index }, Cmd.none )
 
 
 updateList : Int -> (a -> a) -> List a -> List a
@@ -288,7 +294,7 @@ formatTotal transactions =
 
 
 transactionTable : Model -> Html Msg
-transactionTable { transactions, accounts, message, dragging } =
+transactionTable { transactions, accounts, message, dragging, openedDropdown } =
     case ( accounts, transactions ) of
         ( [], _ ) ->
             Html.text ""
@@ -310,36 +316,38 @@ transactionTable { transactions, accounts, message, dragging } =
                             , Html.th [] [ Html.text "Pay From" ]
                             ]
                         ]
-                    , Html.tbody [] (List.indexedMap (transactionRow accounts) transactions)
+                    , Html.tbody [] (List.indexedMap (transactionRow accounts openedDropdown) transactions)
                     ]
                 ]
 
 
-transactionRow : List String -> Int -> Transaction -> Html Msg
-transactionRow accounts index transaction =
+transactionRow : List String -> Maybe Int -> Int -> Transaction -> Html Msg
+transactionRow accounts openedDropdown index transaction =
     Html.tr []
         [ Html.td [] [ Html.text transaction.description ]
         , Html.td [] [ Html.text (toString transaction.amount) ]
         , Html.td [] [ Html.text transaction.transDate ]
         , Html.td [] [ Html.text transaction.postDate ]
         , Html.td [] [ Html.text transaction.transType ]
-        , Html.td [] [ accountPicker accounts index transaction.payFrom ]
+        , Html.td [] [ accountPicker accounts openedDropdown index transaction.payFrom ]
         ]
 
 
-accountPicker : List String -> Int -> Maybe String -> Html Msg
-accountPicker accounts index selected =
+accountPicker : List String -> Maybe Int -> Int -> Maybe String -> Html Msg
+accountPicker accounts openedDropdown index selected =
     let
-        config =
-            Dropdown.Config accounts selected index "Select Account"
+        opened =
+            openedDropdown
+                |> Maybe.map ((==) index)
+                |> Maybe.withDefault False
     in
-        Html.map DropdownMsg (Dropdown.view config Dropdown.init)
-
-{-     Html.select
-        [ Attributes.value (Maybe.withDefault "" selected)
-        , Events.on "change" (Decode.map (SelectAccount index) Events.targetValue)
-        ]
-        (List.map accountOption accounts) -}
+        dropdown
+            { options = accounts
+            , placeholder = "Select Account"
+            , selected = selected
+            , opened = opened
+            , index = index
+            }
 
 
 accountOption : String -> Html Msg
@@ -347,6 +355,52 @@ accountOption account =
     Html.option
         [ Attributes.value account ]
         [ Html.text account ]
+
+
+
+type alias DropdownProps =
+    { options : List String
+    , placeholder : String
+    , selected : Maybe String
+    , opened : Bool
+    , index : Int
+    }
+
+
+dropdown : DropdownProps -> Html Msg
+dropdown props =
+    Html.div
+        [ Attributes.class "dropdown" ]
+        [ dropdownBody props ]
+
+
+dropdownBody : DropdownProps -> Html Msg
+dropdownBody props =
+    if props.opened then
+        Html.div
+            [ Attributes.class "dropdown__list"]
+            (List.map (dropdownOption props.index) props.options)
+    else
+        Html.div
+            [ Attributes.class "dropdown__label"
+            , Events.onClick (OpenDropdown props.index)
+            ]
+            [ props.selected
+                |> Maybe.withDefault props.placeholder
+                |> Html.text
+            , Html.i
+                [ Attributes.class "material-icons" ]
+                [ Html.text "arrow_drop_down" ]
+            ]
+
+
+dropdownOption : Int -> String -> Html Msg
+dropdownOption index option =
+    Html.div
+        [ Attributes.class "dropdown__list__item"
+        , Events.onClick (SelectAccount index option)
+        ]
+        [ Html.text option ]
 
 
 error : Maybe String -> Html Msg
