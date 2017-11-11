@@ -11,6 +11,7 @@ import FormatNumber.Locales as Number
 import Ports
 import Transaction exposing (Transaction)
 import List.Extra as List
+import Dropdown
 
 
 -- MODEL
@@ -341,12 +342,13 @@ accountPicker accounts openedDropdown index selected =
                 |> Maybe.map ((==) index)
                 |> Maybe.withDefault False
     in
-        dropdown
+        Dropdown.view
             { options = accounts
             , placeholder = "Select Account"
             , selected = selected
             , opened = opened
-            , index = index
+            , handleOpen = OpenDropdown index
+            , handleSelect = SelectAccount index
             }
 
 
@@ -355,52 +357,6 @@ accountOption account =
     Html.option
         [ Attributes.value account ]
         [ Html.text account ]
-
-
-
-type alias DropdownProps =
-    { options : List String
-    , placeholder : String
-    , selected : Maybe String
-    , opened : Bool
-    , index : Int
-    }
-
-
-dropdown : DropdownProps -> Html Msg
-dropdown props =
-    Html.div
-        [ Attributes.class "dropdown" ]
-        [ dropdownBody props ]
-
-
-dropdownBody : DropdownProps -> Html Msg
-dropdownBody props =
-    if props.opened then
-        Html.div
-            [ Attributes.class "dropdown__list"]
-            (List.map (dropdownOption props.index) props.options)
-    else
-        Html.div
-            [ Attributes.class "dropdown__label"
-            , Events.onClick (OpenDropdown props.index)
-            ]
-            [ props.selected
-                |> Maybe.withDefault props.placeholder
-                |> Html.text
-            , Html.i
-                [ Attributes.class "material-icons" ]
-                [ Html.text "arrow_drop_down" ]
-            ]
-
-
-dropdownOption : Int -> String -> Html Msg
-dropdownOption index option =
-    Html.div
-        [ Attributes.class "dropdown__list__item"
-        , Events.onClick (SelectAccount index option)
-        ]
-        [ Html.text option ]
 
 
 error : Maybe String -> Html Msg
