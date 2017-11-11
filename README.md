@@ -1,28 +1,5 @@
 
-# payback
+# Payback
 
-## Development
-
-Start the hot-reloading webpack dev server:
-
-    npm start
-
-Navigate to <http://localhost:3000>.
-
-Any changes you make to your files (.elm, .js, .css, etc.) will trigger
-a hot reload.
-
-## Production
-
-When you're ready to deploy:
-
-    npm run build
-
-This will create a `dist` folder:
-
-    .
-    ├── dist
-    │   ├── index.html 
-    │   ├── app-5df766af1ced8ff1fe0a.css
-    │   └── app-5df766af1ced8ff1fe0a.js
-
+## Manage Credit Card Bills
+Payback is an app for my personal use for managing credit card payments.  Add accounts to pay from, upload a CSV of transactions (only Chase is supported currently) and see a table of transactions.  Selecting an option from the list of accounts next to a transaction recalculates the total owed per account.
