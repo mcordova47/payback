@@ -4,7 +4,15 @@
 
 $gray: #adadad;
 $gray-highlight: #f7f7f7;
-$primary: #8a8aff;
+$primary: #0c0c6f;
+
+body {
+  margin: 0;
+}
+
+.app-content {
+  padding: 10px;
+}
 
 .payback {
   font-family: Roboto, sans-serif;
@@ -27,6 +35,17 @@ $primary: #8a8aff;
   }
   tr:last-child td {
     border-bottom: none;
+  }
+}
+
+.banner {
+  width: 100%;
+  background-color: $primary;
+  color: white;
+  padding: 5px 10px;
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
   }
 }
 

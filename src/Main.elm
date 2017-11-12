@@ -171,9 +171,28 @@ view : Model -> Html Msg
 view model =
     Html.div
         [ Attributes.class "payback" ]
+        [ banner
+        , appContent model
+        ]
+
+
+appContent : Model -> Html Msg
+appContent model =
+    Html.div
+        [ Attributes.class "app-content" ]
         [ newAccountInput model.draftAccount
         , aggregateTable model
         , transactionTable model
+        ]
+
+
+banner : Html Msg
+banner =
+    Html.div
+        [ Attributes.class "banner" ]
+        [ Html.div
+            [ Attributes.class "logo" ]
+            [ Html.text "Payback" ]
         ]
 
 
