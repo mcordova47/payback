@@ -3,6 +3,7 @@ module Dropdown exposing (Props, view)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Json.Decode as Decode
 
 
 type alias Props msg =
@@ -31,7 +32,10 @@ dropdownBody props =
     else
         Html.div
             [ Attributes.class "dropdown__label"
-            , Events.onClick props.handleOpen
+            , Events.onWithOptions
+                "click"
+                { stopPropagation = True, preventDefault = False }
+                (Decode.succeed props.handleOpen)
             ]
             [ props.selected
                 |> Maybe.withDefault props.placeholder

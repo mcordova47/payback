@@ -12,6 +12,7 @@ import Ports
 import Transaction exposing (Transaction)
 import List.Extra as List
 import Dropdown
+import Mouse
 
 
 -- MODEL
@@ -53,6 +54,7 @@ type Msg
     | OpenDropdown Int
     | DragOver
     | DragLeave
+    | MouseClick Mouse.Position
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -115,6 +117,9 @@ update msg model =
 
         OpenDropdown index ->
             ( { model | openedDropdown = Just index }, Cmd.none )
+
+        MouseClick _ ->
+            ( { model | openedDropdown = Nothing }, Cmd.none )
 
 
 updateList : Int -> (a -> a) -> List a -> List a
@@ -399,7 +404,10 @@ error maybeMessage =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Ports.readFile ReadFile
+    Sub.batch
+        [ Ports.readFile ReadFile
+        , Mouse.clicks MouseClick
+        ]
 
 
 main : Program Never Model Msg
