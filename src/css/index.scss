@@ -4,7 +4,7 @@
 
 $gray: #adadad;
 $gray-highlight: #f7f7f7;
-$primary: #0c0c6f;
+$primary: #1a237e;
 
 body {
   margin: 0;
@@ -42,10 +42,9 @@ body {
   width: 100%;
   background-color: $primary;
   color: white;
-  padding: 5px 10px;
+  padding: 10px;
   .logo {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 32px;
   }
 }
 
