@@ -144,17 +144,18 @@ parseCSV text =
                 |> List.map (String.split ",")
     in
         case rows of
-            [] -> []
+            [] ->
+                []
 
             headers :: data ->
                 data
                     |> List.map
                         (Transaction.fromDict << Dict.fromList << (zip headers))
                     |> List.filterMap identity
-                    |> List.takeWhile ((==) "Sale" << .transType)
+                    |> List.takeWhile ((/=) "Payment" << .transType)
 
 
-zip : (List a) -> (List b) -> List (a, b)
+zip : List a -> List b -> List ( a, b )
 zip =
     List.map2 (,)
 
@@ -167,6 +168,7 @@ fileInputEventDecoder =
 dropEventDecoder : Decoder Value
 dropEventDecoder =
     Decode.at [ "dataTransfer", "files", "0" ] Decode.value
+
 
 
 -- VIEW
@@ -202,7 +204,8 @@ banner =
 
 
 fileUploadId : String
-fileUploadId = "file-upload"
+fileUploadId =
+    "file-upload"
 
 
 fileUploader : Html Msg
@@ -282,12 +285,12 @@ aggregateTable { transactions, accounts } =
                     [ Html.thead []
                         [ Html.tr [] <|
                             (tableHeader "Total")
-                            :: (List.map tableHeader accounts)
+                                :: (List.map tableHeader accounts)
                         ]
                     , Html.tbody []
                         [ Html.tr [] <|
                             (tableCell (formatTotal transactions))
-                            :: (List.map (tableCell << formatSubTotal transactions) accounts)
+                                :: (List.map (tableCell << formatSubTotal transactions) accounts)
                         ]
                     ]
                 ]
@@ -397,6 +400,7 @@ error maybeMessage =
                 , Html.div []
                     [ Html.text msg ]
                 ]
+
 
 
 -- SUBSCRIPTIONS
