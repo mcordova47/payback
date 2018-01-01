@@ -13,14 +13,15 @@ type alias Transaction =
     }
 
 
-fromDict : (Dict String String) -> Maybe Transaction
+fromDict : Dict String String -> Maybe Transaction
 fromDict dict =
     let
         amount =
             dict
                 |> Dict.get "Amount"
+                |> Debug.log "amount"
                 |> Maybe.andThen (Result.toMaybe << String.toFloat)
-                |> Maybe.map abs
+                |> Maybe.map negate
     in
         Maybe.map5
             (Transaction Nothing)
