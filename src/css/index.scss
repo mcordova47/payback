@@ -1,10 +1,10 @@
 /* Root styles can go here */
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Raleway|Roboto');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 $gray: #adadad;
 $gray-highlight: #f7f7f7;
-$primary: #1a237e;
+$primary: #3F51B5;
 
 body {
   margin: 0;
@@ -39,11 +39,11 @@ body {
 }
 
 .banner {
-  width: 100%;
   background-color: $primary;
   color: white;
   padding: 10px;
   .logo {
+    font-family: Raleway, sans-serif;
     font-size: 32px;
   }
 }

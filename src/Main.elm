@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -276,7 +276,7 @@ aggregateTable : Model -> Html Msg
 aggregateTable { transactions, accounts } =
     case accounts of
         [] ->
-            Html.text "Add some accounts to begin."
+            Html.text "Add some bank accounts to begin."
 
         _ ->
             Html.div
@@ -377,13 +377,6 @@ accountPicker accounts openedDropdown index selected =
             , handleOpen = OpenDropdown index
             , handleSelect = SelectAccount index
             }
-
-
-accountOption : String -> Html Msg
-accountOption account =
-    Html.option
-        [ Attributes.value account ]
-        [ Html.text account ]
 
 
 error : Maybe String -> Html Msg
