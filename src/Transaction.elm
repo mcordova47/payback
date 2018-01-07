@@ -19,7 +19,6 @@ fromDict dict =
         amount =
             dict
                 |> Dict.get "Amount"
-                |> Debug.log "amount"
                 |> Maybe.andThen (Result.toMaybe << String.toFloat)
                 |> Maybe.map negate
     in
