@@ -1,8 +1,11 @@
 module Main exposing (main)
 
-import Html exposing (Html)
-import Html.Attributes as Attributes
-import Html.Events as Events
+import Html
+import Html.Styled as Styled exposing (Html)
+import Html.Styled.Attributes as Attributes exposing (css)
+import Html.Styled.Events as Events
+import Css exposing (Color, sansSerif)
+import Css.Colors as Colors
 import Json.Decode as Decode exposing (Decoder, Value)
 import Dict exposing (Dict)
 import Regex
@@ -13,6 +16,7 @@ import Transaction exposing (Transaction)
 import List.Extra as List
 import Dropdown
 import Mouse
+import Styles
 
 
 -- MODEL
@@ -174,19 +178,24 @@ dropEventDecoder =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
-    Html.div
-        [ Attributes.class "payback" ]
+    Styled.div
+        [ css
+            [ Css.fontFamilies [ "Roboto", sansSerif.value ]
+            , Css.color Styles.fontColor
+            ]
+        ]
         [ banner
         , appContent model
         ]
+        |> Styled.toUnstyled
 
 
 appContent : Model -> Html Msg
 appContent model =
-    Html.div
-        [ Attributes.class "app-content" ]
+    Styled.div
+        [ css [ Css.padding (Css.px 10) ] ]
         [ newAccountInput model.draftAccount
         , aggregateTable model
         , transactionTable model
@@ -195,43 +204,64 @@ appContent model =
 
 banner : Html Msg
 banner =
-    Html.div
-        [ Attributes.class "banner" ]
-        [ Html.div
-            [ Attributes.class "logo" ]
-            [ Html.text "Payback" ]
+    Styled.div
+        [ css
+            [ Css.backgroundColor Styles.primaryColor
+            , Css.color Colors.white
+            , Css.padding (Css.px 10)
+            ]
         ]
-
-
-fileUploadId : String
-fileUploadId =
-    "file-upload"
+        [ Styled.div
+            [ css
+                [ Css.fontFamilies [ "Raleway", sansSerif.value ]
+                , Css.fontSize (Css.px 32)
+                ]
+            ]
+            [ Styled.text "Payback" ]
+        ]
 
 
 fileUploader : Html Msg
 fileUploader =
-    Html.div
-        [ Attributes.class "file-upload-container" ]
-        [ Html.input
+    Styled.div
+        [ css
+            [ Css.display Css.inlineBlock
+            , Css.marginBottom (Css.px -7)
+            ]
+        ]
+        [ Styled.input
             [ Attributes.type_ "file"
-            , Attributes.id fileUploadId
+            , Attributes.id "file-upload"
             , Events.on "change" (Decode.map UploadFile fileInputEventDecoder)
+            , css [ Css.display Css.none ]
             ]
             []
-        , Html.label
-            [ Attributes.for fileUploadId ]
-            [ Html.i
-                [ Attributes.class "material-icons" ]
-                [ Html.text "file_upload" ]
-            , Html.span []
-                [ Html.text "Upload" ]
+        , Styled.label
+            [ Attributes.for "file-upload"
+            , css [ Css.cursor Css.pointer ]
+            ]
+            [ Styled.i
+                [ Attributes.class "material-icons"
+                , css
+                    [ Css.float Css.left
+                    , Css.color (Css.hex "a0a0a0")
+                    ]
+                ]
+                [ Styled.text "file_upload" ]
+            , Styled.span
+                [ css
+                    [ Css.float Css.left
+                    , Css.padding2 (Css.px 2) (Css.px 5)
+                    ]
+                ]
+                [ Styled.text "Upload" ]
             ]
         ]
 
 
 fileDrop : Maybe String -> Bool -> Html Msg
 fileDrop message dragging =
-    Html.div
+    Styled.div
         [ Events.onWithOptions
             "drop"
             { stopPropagation = False, preventDefault = True }
@@ -244,29 +274,46 @@ fileDrop message dragging =
             "dragleave"
             { stopPropagation = False, preventDefault = True }
             (Decode.succeed DragLeave)
-        , Attributes.classList
-            [ ( "file-drop", True )
-            , ( "file-drop--dragging", dragging )
+        , css
+            [ Css.height (Css.px 250)
+            , Css.width (Css.px 500)
+            , Css.border3 (Css.px 2) Css.dashed Styles.gray
+            , Css.borderRadius (Css.px 5)
+            , Css.textAlign (Css.center)
+            , Css.paddingTop (Css.px 235)
+            , Css.backgroundColor
+                (if dragging then
+                    Styles.grayHighlight
+                 else
+                    Colors.white
+                )
             ]
         ]
         [ error message
-        , Html.div []
+        , Styled.div []
             [ fileUploader
-            , Html.span [] [ Html.text " or drop file." ]
+            , Styled.span [] [ Styled.text " or drop file." ]
             ]
         ]
 
 
 newAccountInput : String -> Html Msg
 newAccountInput value =
-    Html.form
-        [ Events.onSubmit AddAccount
-        , Attributes.class "new-account"
-        ]
-        [ Html.input
+    Styled.form
+        [ Events.onSubmit AddAccount ]
+        [ Styled.input
             [ Attributes.placeholder "Add Account"
             , Attributes.value value
             , Events.onInput SetDraftAccount
+            , css
+                [ Css.borderWidth4 (Css.px 0) (Css.px 0) (Css.px 3) (Css.px 0)
+                , Css.outline Css.none
+                , Css.padding (Css.px 5)
+                , Css.fontSize (Css.px 16)
+                , Css.marginBottom (Css.px 10)
+                , Css.focus
+                    [ Css.borderColor Styles.primaryColor ]
+                ]
             ]
             []
         ]
@@ -276,19 +323,24 @@ aggregateTable : Model -> Html Msg
 aggregateTable { transactions, accounts } =
     case accounts of
         [] ->
-            Html.text "Add some bank accounts to begin."
+            Styled.text "Add some bank accounts to begin."
 
         _ ->
-            Html.div
+            Styled.div
                 [ Attributes.class "aggregate-table" ]
-                [ Html.table []
-                    [ Html.thead []
-                        [ Html.tr [] <|
+                [ Styles.table
+                    [ css
+                        [ Css.borderCollapse Css.collapse
+                        , Css.marginBottom (Css.px 10)
+                        ]
+                    ]
+                    [ Styled.thead []
+                        [ Styled.tr [] <|
                             (tableHeader "Total")
                                 :: (List.map tableHeader accounts)
                         ]
-                    , Html.tbody []
-                        [ Html.tr [] <|
+                    , Styled.tbody []
+                        [ Styled.tr [] <|
                             (tableCell (formatTotal transactions))
                                 :: (List.map (tableCell << formatSubTotal transactions) accounts)
                         ]
@@ -298,12 +350,12 @@ aggregateTable { transactions, accounts } =
 
 tableCell : String -> Html Msg
 tableCell text =
-    Html.td [] [ Html.text text ]
+    Styles.td [] [ Styled.text text ]
 
 
 tableHeader : String -> Html Msg
 tableHeader text =
-    Html.th [] [ Html.text text ]
+    Styles.th [] [ Styled.text text ]
 
 
 formatSubTotal : List Transaction -> String -> String
@@ -325,39 +377,39 @@ transactionTable : Model -> Html Msg
 transactionTable { transactions, accounts, message, dragging, openedDropdown } =
     case ( accounts, transactions ) of
         ( [], _ ) ->
-            Html.text ""
+            Styled.text ""
 
         ( _, [] ) ->
             fileDrop message dragging
 
         _ ->
-            Html.div
+            Styled.div
                 [ Attributes.class "transactions" ]
-                [ Html.table []
-                    [ Html.thead []
-                        [ Html.tr []
-                            [ Html.th [] [ Html.text "Description" ]
-                            , Html.th [] [ Html.text "Amount" ]
-                            , Html.th [] [ Html.text "Transaction Date" ]
-                            , Html.th [] [ Html.text "Post Date" ]
-                            , Html.th [] [ Html.text "Type" ]
-                            , Html.th [] [ Html.text "Pay From" ]
+                [ Styles.table []
+                    [ Styled.thead []
+                        [ Styled.tr []
+                            [ Styles.th [] [ Styled.text "Description" ]
+                            , Styles.th [] [ Styled.text "Amount" ]
+                            , Styles.th [] [ Styled.text "Transaction Date" ]
+                            , Styles.th [] [ Styled.text "Post Date" ]
+                            , Styles.th [] [ Styled.text "Type" ]
+                            , Styles.th [] [ Styled.text "Pay From" ]
                             ]
                         ]
-                    , Html.tbody [] (List.indexedMap (transactionRow accounts openedDropdown) transactions)
+                    , Styled.tbody [] (List.indexedMap (transactionRow accounts openedDropdown) transactions)
                     ]
                 ]
 
 
 transactionRow : List String -> Maybe Int -> Int -> Transaction -> Html Msg
 transactionRow accounts openedDropdown index transaction =
-    Html.tr []
-        [ Html.td [] [ Html.text transaction.description ]
-        , Html.td [] [ Html.text (toString transaction.amount) ]
-        , Html.td [] [ Html.text transaction.transDate ]
-        , Html.td [] [ Html.text transaction.postDate ]
-        , Html.td [] [ Html.text transaction.transType ]
-        , Html.td [] [ accountPicker accounts openedDropdown index transaction.payFrom ]
+    Styled.tr []
+        [ Styles.td [] [ Styled.text transaction.description ]
+        , Styles.td [] [ Styled.text (toString transaction.amount) ]
+        , Styles.td [] [ Styled.text transaction.transDate ]
+        , Styles.td [] [ Styled.text transaction.postDate ]
+        , Styles.td [] [ Styled.text transaction.transType ]
+        , Styles.td [] [ accountPicker accounts openedDropdown index transaction.payFrom ]
         ]
 
 
@@ -377,21 +429,26 @@ accountPicker accounts openedDropdown index selected =
             , handleOpen = OpenDropdown index
             , handleSelect = SelectAccount index
             }
+            |> Styled.fromUnstyled
 
 
 error : Maybe String -> Html Msg
 error maybeMessage =
     case maybeMessage of
         Nothing ->
-            Html.text ""
+            Styled.text ""
 
         Just msg ->
-            Html.div
-                [ Attributes.class "error-container" ]
-                [ Html.div []
-                    [ Html.text "¯\\_(ツ)_/¯" ]
-                , Html.div []
-                    [ Html.text msg ]
+            Styled.div
+                [ css
+                    [ Css.textAlign Css.center
+                    , Css.width (Css.px 500)
+                    , Css.marginTop (Css.px -30)
+                    , Css.marginBottom (Css.px 10)
+                    ]
+                ]
+                [ Styled.div [] [ Styled.text "¯\\_(ツ)_/¯" ]
+                , Styled.div [] [ Styled.text msg ]
                 ]
 
 

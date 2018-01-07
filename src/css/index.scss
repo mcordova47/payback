@@ -10,96 +10,8 @@ body {
   margin: 0;
 }
 
-.app-content {
-  padding: 10px;
-}
-
-.payback {
-  font-family: Roboto, sans-serif;
-  color: #323232;
-  table {
-    border-collapse: collapse;
-    margin-bottom: 10px;
-  }
-  th {
-    text-align: left;
-    font-weight: normal;
-    color: $gray;
-    font-size: 14px;
-    padding: 0 10px;
-  }
-  td {
-    border-bottom: 1px solid $gray;
-    padding: 10px;
-    position: relative;
-  }
-  tr:last-child td {
-    border-bottom: none;
-  }
-}
-
-.banner {
-  background-color: $primary;
-  color: white;
-  padding: 10px;
-  .logo {
-    font-family: Raleway, sans-serif;
-    font-size: 32px;
-  }
-}
-
-#file-upload {
-  display: none;
-}
-
-.file-upload-container {
-  display: inline-block;
-  margin-bottom: -7px;
-}
-
-label[for="file-upload"] {
-  cursor: pointer;
-  span, i {
-    float: left;
-  }
-  i {
-    color: #a0a0a0;
-  }
-  span {
-    padding: 2px 5px;
-  }
-}
-
-.new-account {
-  input {
-    border-width: 0 0 3px 0;
-    outline: none;
-    padding: 5px;
-    font-size: 16px;
-    margin-bottom: 10px;
-    &:focus {
-      border-color: $primary;
-    }
-  }
-}
-
-.error-container {
-  text-align: center;
-  width: 500px;
-  margin-top: -30px;
-  margin-bottom: 10px;
-}
-
-.file-drop {
-  height: 250px;
-  width: 500px;
-  border: 2px dashed $gray;
-  border-radius: 5px;
-  text-align: center;
-  padding-top: 235px;
-  &--dragging {
-    background-color: $gray-highlight;
-  }
+tr:last-child td {
+  border-bottom: none;
 }
 
 .dropdown__label {
@@ -107,7 +19,6 @@ label[for="file-upload"] {
   i {
     position: absolute;
     top: 7px;
-/*     color: $gray; */
   }
 }
 
