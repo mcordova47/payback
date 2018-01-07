@@ -117,6 +117,9 @@ label[for="file-upload"] {
   &:hover {
     background-color: $gray-highlight;
   }
+  &--selected {
+    color: $primary;
+  }
 }
 
 .dropdown__list {

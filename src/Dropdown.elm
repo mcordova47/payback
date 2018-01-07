@@ -27,7 +27,7 @@ dropdownBody : Props msg -> Html msg
 dropdownBody props =
     if props.opened then
         Html.div
-            [ Attributes.class "dropdown__list"]
+            [ Attributes.class "dropdown__list" ]
             (List.map (dropdownOption props) props.options)
     else
         Html.div
@@ -49,7 +49,12 @@ dropdownBody props =
 dropdownOption : Props msg -> String -> Html msg
 dropdownOption props option =
     Html.div
-        [ Attributes.class "dropdown__list__item"
+        [ Attributes.classList
+            [ ( "dropdown__list__item", True )
+            , ( "dropdown__list__item--selected"
+              , props.selected == Just option
+              )
+            ]
         , Events.onClick (props.handleSelect option)
         ]
         [ Html.text option ]
