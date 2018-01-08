@@ -429,7 +429,6 @@ accountPicker accounts openedDropdown index selected =
             , handleOpen = OpenDropdown index
             , handleSelect = SelectAccount index
             }
-            |> Styled.fromUnstyled
 
 
 error : Maybe String -> Html Msg

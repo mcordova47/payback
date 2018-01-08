@@ -7,9 +7,10 @@ module Styles
         , grayHighlight
         , primaryColor
         , fontColor
+        , cssIf
         )
 
-import Css exposing (Color)
+import Css exposing (Color, Style)
 import Css.Colors as Colors
 import Html.Styled as Html exposing (Html, Attribute, styled)
 import Html.Styled.Attributes as Attributes exposing (css)
@@ -61,3 +62,11 @@ grayHighlight =
 fontColor : Color
 fontColor =
     Css.hex "323232"
+
+
+cssIf : Bool -> List Style -> Attribute msg
+cssIf condition styles =
+    if condition then
+        css styles
+    else
+        css []

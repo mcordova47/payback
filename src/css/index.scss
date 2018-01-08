@@ -2,41 +2,10 @@
 @import url('https://fonts.googleapis.com/css?family=Raleway|Roboto');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-$gray: #adadad;
-$gray-highlight: #f7f7f7;
-$primary: #3F51B5;
-
 body {
   margin: 0;
 }
 
 tr:last-child td {
   border-bottom: none;
-}
-
-.dropdown__label {
-  cursor: pointer;
-  i {
-    position: absolute;
-    top: 7px;
-  }
-}
-
-.dropdown__list__item {
-  padding: 10px;
-  cursor: pointer;
-  &:hover {
-    background-color: $gray-highlight;
-  }
-  &--selected {
-    color: $primary;
-  }
-}
-
-.dropdown__list {
-  position: absolute;
-  top: 0;
-  background-color: white;
-  z-index: 1;
-  box-shadow: -1px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
