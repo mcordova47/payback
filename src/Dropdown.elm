@@ -1,4 +1,4 @@
-module Dropdown exposing (Props, view)
+module Dropdown exposing (Props, Theme, view)
 
 import Css exposing (Color)
 import Css.Colors as Colors
