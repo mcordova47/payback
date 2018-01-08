@@ -8,10 +8,12 @@ module Styles
         , primaryColor
         , fontColor
         , cssIf
+        , global
         )
 
 import Css exposing (Color, Style)
 import Css.Colors as Colors
+import Css.Foreign as Foreign
 import Html.Styled as Html exposing (Html, Attribute, styled)
 import Html.Styled.Attributes as Attributes exposing (css)
 
@@ -70,3 +72,13 @@ cssIf condition styles =
         css styles
     else
         css []
+
+
+global : Html msg
+global =
+    Foreign.global
+        [ Foreign.body
+            [ Css.margin (Css.px 0) ]
+        , Foreign.selector "tr:last-child td"
+            [ Css.borderBottomStyle Css.none ]
+        ]

@@ -28,13 +28,6 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.(css|scss)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'sass-loader', 'postcss-loader']
-        })
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         include: [path.resolve(__dirname, 'src')],
@@ -46,11 +39,6 @@ const common = {
           }
         }
       },
-      // {
-      //   test: /\.html$/,
-      //   exclude: /node_modules/,
-      //   loader: 'file-loader?name=[name].[ext]'
-      // },
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
@@ -75,14 +63,7 @@ const common = {
     new HtmlWebpackPlugin({
       title: 'payback',
       template: 'src/index.html'
-    }),
-
-    new CopyWebpackPlugin([
-      {
-        from: 'src/img',
-        to: 'img'
-      }
-    ])
+    })
   ]
 }
 
@@ -106,9 +87,7 @@ if (TARGET_ENV === 'development') {
       // Notify on buld errors
       new WebpackBuildNotifierPlugin({
         suppressSuccess: 'always'
-      }),
-
-      new ExtractTextPlugin('app.css')
+      })
     ],
 
     devServer: {
@@ -135,9 +114,7 @@ if (TARGET_ENV === 'production') {
     },
     plugins: [
       // Apparently necessary when using [hash]
-      new webpack.optimize.OccurrenceOrderPlugin(),
-
-      new ExtractTextPlugin('app-[hash].css')
+      new webpack.optimize.OccurrenceOrderPlugin()
     ]
   })
 }
