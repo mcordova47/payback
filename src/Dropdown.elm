@@ -68,13 +68,7 @@ dropdownBody props =
 dropdownOption : Props msg -> String -> Html msg
 dropdownOption props option =
     Html.div
-        [ Attributes.classList
-            [ ( "dropdown__list__item", True )
-            , ( "dropdown__list__item--selected"
-              , props.selected == Just option
-              )
-            ]
-        , Events.onClick (props.handleSelect option)
+        [ Events.onClick (props.handleSelect option)
         , css
             [ Css.padding (Css.px 10)
             , Css.cursor Css.pointer

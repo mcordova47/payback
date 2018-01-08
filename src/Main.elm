@@ -326,8 +326,7 @@ aggregateTable { transactions, accounts } =
             Styled.text "Add some bank accounts to begin."
 
         _ ->
-            Styled.div
-                [ Attributes.class "aggregate-table" ]
+            Styled.div []
                 [ Styles.table
                     [ css
                         [ Css.borderCollapse Css.collapse
@@ -383,8 +382,7 @@ transactionTable { transactions, accounts, message, dragging, openedDropdown } =
             fileDrop message dragging
 
         _ ->
-            Styled.div
-                [ Attributes.class "transactions" ]
+            Styled.div []
                 [ Styles.table []
                     [ Styled.thead []
                         [ Styled.tr []
