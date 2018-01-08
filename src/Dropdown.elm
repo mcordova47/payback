@@ -1,6 +1,6 @@
 module Dropdown exposing (Props, view)
 
-import Css
+import Css exposing (Color)
 import Css.Colors as Colors
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attributes exposing (css)
@@ -19,14 +19,14 @@ type alias Props msg =
     }
 
 
-view : Props msg -> Html msg
-view props =
-    Html.div []
-        [ dropdownBody props ]
+type alias Theme =
+    { primary : Color
+    , highlight : Color
+    }
 
 
-dropdownBody : Props msg -> Html msg
-dropdownBody props =
+view : Props msg -> Theme -> Html msg
+view props theme =
     if props.opened then
         Html.div
             [ css
@@ -42,11 +42,10 @@ dropdownBody props =
                     (Css.rgba 0 0 0 0.2)
                 ]
             ]
-            (List.map (dropdownOption props) props.options)
+            (List.map (dropdownOption props theme) props.options)
     else
         Html.div
-            [ Events.onWithOptions
-                "click"
+            [ Events.onWithOptions "click"
                 { stopPropagation = True, preventDefault = False }
                 (Decode.succeed props.handleOpen)
             , css [ Css.cursor Css.pointer ]
@@ -65,18 +64,18 @@ dropdownBody props =
             ]
 
 
-dropdownOption : Props msg -> String -> Html msg
-dropdownOption props option =
+dropdownOption : Props msg -> Theme -> String -> Html msg
+dropdownOption props theme option =
     Html.div
         [ Events.onClick (props.handleSelect option)
         , css
             [ Css.padding (Css.px 10)
             , Css.cursor Css.pointer
             , Css.hover
-                [ Css.backgroundColor Styles.grayHighlight ]
+                [ Css.backgroundColor theme.highlight ]
             ]
         , Styles.cssIf
             (props.selected == Just option)
-            [ Css.color Styles.primaryColor ]
+            [ Css.color theme.primary ]
         ]
         [ Html.text option ]

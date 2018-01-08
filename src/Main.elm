@@ -424,6 +424,9 @@ accountPicker accounts openedDropdown index selected =
             , handleOpen = OpenDropdown index
             , handleSelect = SelectAccount index
             }
+            { primary = Styles.primaryColor
+            , highlight = Styles.grayHighlight
+            }
 
 
 error : Maybe String -> Html Msg
