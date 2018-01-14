@@ -145,7 +145,7 @@ parseCSV text =
             text
                 |> Regex.replace Regex.All (Regex.regex "&amp;") (\_ -> "&")
                 |> String.lines
-                |> List.map (String.split ",")
+                |> List.map (List.map String.trim << String.split ",")
     in
         case rows of
             [] ->
