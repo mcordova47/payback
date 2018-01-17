@@ -13,8 +13,11 @@ type alias Transaction =
     { date : String
     , description : String
     , amount : Float
-    , clearedStatus : String
-    , referenceNumber : String
+
+    -- TODO: add optional fields
+    -- , clearedStatus : String
+    -- , referenceNumber : String
+    -- , memo : String
     }
 
 
@@ -24,16 +27,15 @@ type TransactionField
     | AmountField Float
     | ClearedStatusField String
     | ReferenceNumberField String
+    | MemoField String
 
 
 fromFields : List TransactionField -> Maybe Transaction
 fromFields fields =
-    Maybe.map5 Transaction
+    Maybe.map3 Transaction
         (getField getDate fields)
         (getField getDescription fields)
         (getField getAmount fields)
-        (getField getClearedStatus fields)
-        (getField getReferenceNumber fields)
 
 
 getField : (TransactionField -> Maybe a) -> List TransactionField -> Maybe a
@@ -91,6 +93,16 @@ getReferenceNumber field =
             Nothing
 
 
+getMemo : TransactionField -> Maybe String
+getMemo field =
+    case field of
+        MemoField memo ->
+            Just memo
+
+        _ ->
+            Nothing
+
+
 parse : String -> Result Parser.Error QIFFile
 parse =
     Parser.run qif
@@ -123,6 +135,7 @@ transactionField =
         , amountField
         , clearedStatusField
         , referenceNumberField
+        , memoField
         ]
 
 
@@ -158,6 +171,13 @@ referenceNumberField : Parser TransactionField
 referenceNumberField =
     Parser.succeed ReferenceNumberField
         |. newLineSymbol "N"
+        |= fullLine
+
+
+memoField : Parser TransactionField
+memoField =
+    Parser.succeed MemoField
+        |. newLineSymbol "M"
         |= fullLine
 
 
