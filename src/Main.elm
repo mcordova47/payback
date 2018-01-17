@@ -7,7 +7,6 @@ import Html.Styled.Events as Events
 import Css exposing (Color, sansSerif)
 import Css.Colors as Colors
 import Json.Decode as Decode exposing (Decoder, Value)
-import Dict exposing (Dict)
 import FormatNumber as Number
 import FormatNumber.Locales as Number
 import Ports
