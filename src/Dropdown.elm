@@ -57,7 +57,7 @@ view props theme =
                 [ Attributes.class "material-icons"
                 , css
                     [ Css.position Css.absolute
-                    , Css.top (Css.px 7)
+                    , Css.top (Css.px 11)
                     ]
                 ]
                 [ Html.text "arrow_drop_down" ]

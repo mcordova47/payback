@@ -13,10 +13,10 @@ import FormatNumber as Number
 import FormatNumber.Locales as Number
 import Ports
 import Transaction exposing (Transaction)
-import List.Extra as List
 import Dropdown
 import Mouse
 import Styles
+import Quicken
 
 
 -- MODEL
@@ -59,6 +59,7 @@ type Msg
     | DragOver
     | DragLeave
     | MouseClick Mouse.Position
+    | Delete Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -70,7 +71,11 @@ update msg model =
         ReadFile text ->
             let
                 transactions =
-                    parseCSV text
+                    Quicken.parse text
+                        |> Debug.log "parsed text"
+                        |> Result.map .transactions
+                        |> Result.withDefault []
+                        |> List.map Transaction.fromQuicken
 
                 message =
                     if List.isEmpty transactions then
@@ -125,6 +130,16 @@ update msg model =
         MouseClick _ ->
             ( { model | openedDropdown = Nothing }, Cmd.none )
 
+        Delete index ->
+            let
+                transactions =
+                    model.transactions
+                        |> List.indexedMap (,)
+                        |> List.filter ((/=) index << Tuple.first)
+                        |> List.map Tuple.second
+            in
+                ( { model | transactions = transactions }, Cmd.none )
+
 
 updateList : Int -> (a -> a) -> List a -> List a
 updateList index update list =
@@ -136,27 +151,6 @@ updateList index update list =
                 row
     in
         List.indexedMap mapFn list
-
-
-parseCSV : String -> List Transaction
-parseCSV text =
-    let
-        rows =
-            text
-                |> Regex.replace Regex.All (Regex.regex "&amp;") (\_ -> "&")
-                |> String.lines
-                |> List.map (List.map String.trim << String.split ",")
-    in
-        case rows of
-            [] ->
-                []
-
-            headers :: data ->
-                data
-                    |> List.map
-                        (Transaction.fromDict << Dict.fromList << (zip headers))
-                    |> List.filterMap identity
-                    |> List.takeWhile ((/=) "Payment" << .transType)
 
 
 zip : List a -> List b -> List ( a, b )
@@ -385,10 +379,9 @@ transactionTable { transactions, accounts, message, dragging, openedDropdown } =
                         [ Html.tr []
                             [ Styles.th [] [ Html.text "Description" ]
                             , Styles.th [] [ Html.text "Amount" ]
-                            , Styles.th [] [ Html.text "Transaction Date" ]
-                            , Styles.th [] [ Html.text "Post Date" ]
-                            , Styles.th [] [ Html.text "Type" ]
+                            , Styles.th [] [ Html.text "Date" ]
                             , Styles.th [] [ Html.text "Pay From" ]
+                            , Styles.th [] [ Html.text "" ]
                             ]
                         ]
                     , Html.tbody [] (List.indexedMap (transactionRow accounts openedDropdown) transactions)
@@ -401,10 +394,25 @@ transactionRow accounts openedDropdown index transaction =
     Html.tr []
         [ Styles.td [] [ Html.text transaction.description ]
         , Styles.td [] [ Html.text (toString transaction.amount) ]
-        , Styles.td [] [ Html.text transaction.transDate ]
-        , Styles.td [] [ Html.text transaction.postDate ]
-        , Styles.td [] [ Html.text transaction.transType ]
+        , Styles.td [] [ Html.text transaction.date ]
         , Styles.td [] [ accountPicker accounts openedDropdown index transaction.payFrom ]
+        , Styles.td [] [ deleteButton index ]
+        ]
+
+
+deleteButton : Int -> Html Msg
+deleteButton index =
+    Html.div
+        [ Events.onClick (Delete index)
+        , css
+            [ Css.cursor Css.pointer ]
+        ]
+        [ Html.i
+            [ Attributes.class "material-icons delete-icon"
+            , css
+                [ Css.color Styles.gray ]
+            ]
+            [ Html.text "delete" ]
         ]
 
 

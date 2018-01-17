@@ -81,4 +81,8 @@ global =
             [ Css.margin (Css.px 0) ]
         , Foreign.selector "tr:last-child td"
             [ Css.borderBottomStyle Css.none ]
+        , Foreign.selector "tr .delete-icon"
+            [ Css.visibility Css.hidden ]
+        , Foreign.selector "tr:hover .delete-icon"
+            [ Css.visibility Css.visible ]
         ]
