@@ -71,7 +71,6 @@ update msg model =
             let
                 transactions =
                     Quicken.parse text
-                        |> Debug.log "parsed text"
                         |> Result.map .transactions
                         |> Result.withDefault []
                         |> List.map Transaction.fromQuicken
